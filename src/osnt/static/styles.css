@@ -1,0 +1,262 @@
+:root {
+  --ink: #1b1712;
+  --paper: #f4efe4;
+  --rule: #9c3b28;
+  --muted: #6d665b;
+  --line: #d9d0c0;
+  --chip: #e8dfcf;
+  --focus: #2c4a38;
+  --white: #fffcf7;
+  --shadow: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15px/1.45 "Palatino Linotype", Palatino, "Iowan Old Style", "Times New Roman", serif;
+}
+
+body {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 22px 80px;
+  border-left: 6px solid var(--rule);
+}
+
+.mast {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+.kicker {
+  margin: 0 0 6px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--rule);
+}
+
+h1,
+h2 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h1 {
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.legal {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: end;
+  margin: 18px 0 8px;
+}
+
+label {
+  display: grid;
+  gap: 4px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.grow {
+  flex: 1 1 180px;
+}
+
+select,
+input,
+button {
+  font: 14px/1.2 "Segoe UI", system-ui, sans-serif;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 0;
+}
+
+button {
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+button:hover {
+  background: var(--rule);
+}
+
+.file input {
+  padding: 6px;
+}
+
+.status {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--focus);
+  min-height: 1.2em;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.kpi {
+  border-top: 2px solid var(--ink);
+  padding-top: 8px;
+}
+
+.kpi b {
+  display: block;
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi span {
+  color: var(--muted);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bars {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 22px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 48px;
+  gap: 10px;
+  align-items: center;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+}
+
+.bar-track {
+  height: 10px;
+  background: var(--chip);
+}
+
+.bar-fill {
+  height: 10px;
+  background: var(--ink);
+}
+
+.bar-row span:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--ink);
+}
+
+.tab {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px;
+}
+
+.tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--rule);
+}
+
+.panel {
+  padding-top: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+}
+
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 8px 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.chip {
+  display: inline-block;
+  margin: 0 4px 4px 0;
+  padding: 1px 6px;
+  background: var(--chip);
+  font-size: 11px;
+}
+
+.chip.focus {
+  background: var(--focus);
+  color: var(--paper);
+}
+
+a {
+  color: var(--rule);
+}
+
+.prose {
+  max-width: 68ch;
+}
+
+.prose h2 {
+  font-size: 22px;
+  margin: 18px 0 8px;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 24px 0;
+}
+
+@media (max-width: 800px) {
+  .mast,
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+  body {
+    border-left-width: 4px;
+  }
+}
