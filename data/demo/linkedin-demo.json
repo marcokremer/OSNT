@@ -1,0 +1,194 @@
+{
+  "people": [
+    {
+      "id": "https://www.linkedin.com/in/demo-accenture-data",
+      "name": "Lea Hoffmann (Demo)",
+      "company": "accenture",
+      "headline": "Data Platform Lead | Public Sector | Accenture",
+      "location": "Berlin",
+      "profile_url": "https://www.linkedin.com/in/demo-accenture-data",
+      "about": "Datenplattformen und KI für Bundesbehörden.",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-deloitte-ai",
+      "name": "Jonas Weber (Demo)",
+      "company": "deloitte",
+      "headline": "Senior Manager GenAI, Deloitte Consulting — Öffentlicher Sektor",
+      "location": "München",
+      "profile_url": "https://www.linkedin.com/in/demo-deloitte-ai",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-capgemini-cloud",
+      "name": "Mira Patel (Demo)",
+      "company": "capgemini",
+      "headline": "Cloud Data Architect, Capgemini — DRV / Sozialversicherung",
+      "location": "Berlin",
+      "profile_url": "https://www.linkedin.com/in/demo-capgemini-cloud",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-bearingpoint-sap",
+      "name": "Tim Krüger (Demo)",
+      "company": "bearingpoint",
+      "headline": "BearingPoint | S/4HANA & Analytics für Kommunen",
+      "location": "Frankfurt",
+      "profile_url": "https://www.linkedin.com/in/demo-bearingpoint-sap",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-tsystems-police",
+      "name": "Nora Berg (Demo)",
+      "company": "t-systems",
+      "headline": "T-Systems | Data Platforms Public Safety",
+      "location": "Berlin",
+      "profile_url": "https://www.linkedin.com/in/demo-tsystems-police",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-init-ozg",
+      "name": "Samir Haddad (Demo)",
+      "company": "init",
+      "headline": "]init[ AG | OZG und Verwaltungsdigitalisierung",
+      "location": "Berlin",
+      "profile_url": "https://www.linkedin.com/in/demo-init-ozg",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-pwc-cyber",
+      "name": "Eva Lorenz (Demo)",
+      "company": "pwc",
+      "headline": "PwC Cyber & Data | Beratung öffentlicher Sektor",
+      "location": "Bonn",
+      "profile_url": "https://www.linkedin.com/in/demo-pwc-cyber",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    },
+    {
+      "id": "https://www.linkedin.com/in/demo-bechtle-platform",
+      "name": "Paul Stein (Demo)",
+      "company": "bechtle",
+      "headline": "Bechtle | Azure Data Platform für Landesverwaltungen",
+      "location": "Neckarsulm",
+      "profile_url": "https://www.linkedin.com/in/demo-bechtle-platform",
+      "about": "",
+      "in_scope": true,
+      "source": "demo"
+    }
+  ],
+  "posts": [
+    {
+      "id": "demo-post-1",
+      "person_id": "https://www.linkedin.com/in/demo-accenture-data",
+      "company": "accenture",
+      "author": "Lea Hoffmann (Demo)",
+      "headline": "Data Platform Lead | Public Sector | Accenture",
+      "url": "https://www.linkedin.com/posts/demo-accenture-data-activity-1",
+      "posted_at": "2026-09-12",
+      "text": "Stolz auf den Go-Live der Datenplattform für das ITZBund. Unser Team hat Lakehouse, Data Governance und erste KI-Services für Fachverfahren angebunden. Projekt Bürgerdaten-Kern."
+    },
+    {
+      "id": "demo-post-2",
+      "person_id": "https://www.linkedin.com/in/demo-accenture-data",
+      "company": "accenture",
+      "author": "Lea Hoffmann (Demo)",
+      "headline": "Data Platform Lead | Public Sector | Accenture",
+      "url": "https://www.linkedin.com/posts/demo-accenture-data-activity-2",
+      "posted_at": "2026-04-03",
+      "text": "Mit dem Landesamt für Gesundheit und Lebensmittelsicherheit in Bayern: ÖGD-Bürgerportal, GenAI für Antragsassistenten, Azure-Datenplattform im Hintergrund."
+    },
+    {
+      "id": "demo-post-3",
+      "person_id": "https://www.linkedin.com/in/demo-deloitte-ai",
+      "company": "deloitte",
+      "author": "Jonas Weber (Demo)",
+      "headline": "Senior Manager GenAI, Deloitte Consulting — Öffentlicher Sektor",
+      "url": "https://www.linkedin.com/posts/demo-deloitte-ai-activity-1",
+      "posted_at": "2026-01-20",
+      "text": "Rahmenvertrag Software- und Systemtest für das BKA. Los Testautomation, jetzt mit LLM-gestützter Testdatengenerierung auf der internen Datenplattform."
+    },
+    {
+      "id": "demo-post-4",
+      "person_id": "https://www.linkedin.com/in/demo-capgemini-cloud",
+      "company": "capgemini",
+      "author": "Mira Patel (Demo)",
+      "headline": "Cloud Data Architect, Capgemini — DRV / Sozialversicherung",
+      "url": "https://www.linkedin.com/posts/demo-capgemini-cloud-activity-1",
+      "posted_at": "2025-12-14",
+      "text": "IT-Architekturunterstützung zum Aufbau einer produktiven Container-Plattform bei der Deutschen Rentenversicherung Bund. Nächster Schritt: Feature Store für KI-Modelle."
+    },
+    {
+      "id": "demo-post-5",
+      "person_id": "https://www.linkedin.com/in/demo-bearingpoint-sap",
+      "company": "bearingpoint",
+      "author": "Tim Krüger (Demo)",
+      "headline": "BearingPoint | S/4HANA & Analytics für Kommunen",
+      "url": "https://www.linkedin.com/posts/demo-bearingpoint-sap-activity-1",
+      "posted_at": "2025-12-11",
+      "text": "Einführung S/4HANA Analytics bei der Stadtverwaltung Frankfurt. Beratungs- und Unterstützungsleistung im SAP-Umfeld, angebunden an die städtische Datenplattform."
+    },
+    {
+      "id": "demo-post-6",
+      "person_id": "https://www.linkedin.com/in/demo-tsystems-police",
+      "company": "t-systems",
+      "author": "Nora Berg (Demo)",
+      "headline": "T-Systems | Data Platforms Public Safety",
+      "url": "https://www.linkedin.com/posts/demo-tsystems-police-activity-1",
+      "posted_at": "2025-11-16",
+      "text": "Projekt PLX-Einführung bei der Polizei Berlin. Fachliche Datenplattform für Vorgangsbearbeitung, nächste Stufe KI-gestützte Ähnlichkeitssuche."
+    },
+    {
+      "id": "demo-post-7",
+      "person_id": "https://www.linkedin.com/in/demo-init-ozg",
+      "company": "init",
+      "author": "Samir Haddad (Demo)",
+      "headline": "]init[ AG | OZG und Verwaltungsdigitalisierung",
+      "url": "https://www.linkedin.com/posts/demo-init-ozg-activity-1",
+      "posted_at": "2026-03-18",
+      "text": "Rahmenvertrag Kooperationsplattform elektronische Genehmigungsverfahren für das Landesamt für Umwelt Brandenburg. OZG, Low Code, angebundene Datenplattform."
+    },
+    {
+      "id": "demo-post-8",
+      "person_id": "https://www.linkedin.com/in/demo-init-ozg",
+      "company": "init",
+      "author": "Samir Haddad (Demo)",
+      "headline": "]init[ AG | OZG und Verwaltungsdigitalisierung",
+      "url": "https://www.linkedin.com/posts/demo-init-ozg-activity-2",
+      "posted_at": "2026-03-12",
+      "text": "PMO-Rahmen mit byte Bayern: Projektorganisation für Verwaltungsdigitalisierung und KI-Pilot in der Bayerischen Agentur für Digitales."
+    },
+    {
+      "id": "demo-post-9",
+      "person_id": "https://www.linkedin.com/in/demo-pwc-cyber",
+      "company": "pwc",
+      "author": "Eva Lorenz (Demo)",
+      "headline": "PwC Cyber & Data | Beratung öffentlicher Sektor",
+      "url": "https://www.linkedin.com/posts/demo-pwc-cyber-activity-1",
+      "posted_at": "2026-01-12",
+      "text": "IT-Dienstleistungs-Rahmenvertrag Beratung für das BKA, Los 3. PwC Cyber Security Services: Datenplattform-Härtung und KI-Risikomodell für den öffentlichen Sektor."
+    },
+    {
+      "id": "demo-post-10",
+      "person_id": "https://www.linkedin.com/in/demo-bechtle-platform",
+      "company": "bechtle",
+      "author": "Paul Stein (Demo)",
+      "headline": "Bechtle | Azure Data Platform für Landesverwaltungen",
+      "url": "https://www.linkedin.com/posts/demo-bechtle-platform-activity-1",
+      "posted_at": "2026-02-02",
+      "text": "Azure-Datenplattform und Microsoft Fabric für eine Landesverwaltung. Nicht nur Lizenzen: Implementierung, Governance, erste Copilot-Workloads im Public Sector."
+    }
+  ]
+}

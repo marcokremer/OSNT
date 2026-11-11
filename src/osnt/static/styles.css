@@ -251,6 +251,22 @@ a {
   padding: 24px 0;
 }
 
+.post {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+}
+
+.post header {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.post p {
+  margin: 0 0 8px;
+}
+
 @media (max-width: 800px) {
   .mast,
   .kpis {

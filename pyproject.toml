@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "osnt"
 version = "0.1.0"
-description = "Open-source market intelligence for public-sector data platforms and AI"
+description = "LinkedIn OSINT for public-sector data platform and AI posts"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

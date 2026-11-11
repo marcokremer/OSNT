@@ -1,9 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const companySelect = $("company");
-const focusSelect = $("focus");
 const searchInput = $("q");
 const statusEl = $("status");
-
 const LABELS = {};
 
 function setStatus(text, show = true) {
@@ -13,53 +11,33 @@ function setStatus(text, show = true) {
 
 async function api(path, options) {
   const res = await fetch(path, options);
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`${res.status} ${body.slice(0, 200)}`);
-  }
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || data.error || res.statusText);
+  return data;
 }
 
-function fmtEur(value) {
-  if (value === null || value === undefined || value === "") return "—";
-  const n = Number(value);
-  if (!Number.isFinite(n) || n <= 1) return "—";
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function chips(tags) {
-  return (tags || [])
-    .map((t) => {
-      const focus = t === "ai" || t === "data_platform";
-      return `<span class="chip${focus ? " focus" : ""}">${t}</span>`;
-    })
+function chips(items) {
+  return (items || [])
+    .map((t) => `<span class="chip${t === "in_scope" || t === "ai" || t === "data_platform" ? " focus" : ""}">${t}</span>`)
     .join("");
 }
 
-function companyQuery() {
+function qs() {
   const params = new URLSearchParams();
   if (companySelect.value) params.set("company", companySelect.value);
   if (searchInput.value.trim()) params.set("q", searchInput.value.trim());
-  if (focusSelect.value === "focus") params.set("focus", "true");
-  const qs = params.toString();
-  return qs ? `?${qs}` : "";
+  const s = params.toString();
+  return s ? `?${s}` : "";
 }
 
 function renderKpis(stats) {
   $("kpis").innerHTML = [
-    ["Vergaben", stats.notices],
+    ["Personen im Fokus", stats.people],
+    ["Posts (Fokus)", stats.posts],
     ["Kunden", stats.customers],
-    ["Personen", stats.people],
-    ["KI / Plattform", (stats.by_tag?.ai || 0) + (stats.by_tag?.data_platform || 0)],
+    ["Projekte", stats.projects],
   ]
-    .map(
-      ([label, value]) =>
-        `<div class="kpi"><b>${value ?? 0}</b><span>${label}</span></div>`
-    )
+    .map(([label, value]) => `<div class="kpi"><b>${value ?? 0}</b><span>${label}</span></div>`)
     .join("");
 }
 
@@ -77,84 +55,129 @@ function renderBars(stats) {
     .join("");
 }
 
-function renderProjects(rows) {
+function empty(msg) {
+  return `<p class="empty">${msg}</p>`;
+}
+
+function renderPosts(rows) {
   if (!rows.length) {
-    $("panel-projects").innerHTML =
-      '<p class="empty">Keine Projekte. Zuerst „Demo laden“ oder „TED live“ ausführen.</p>';
+    $("panel-posts").innerHTML = empty(
+      "Keine Posts. Demo laden, oder APIFY_TOKEN setzen und „Apify scrapen“."
+    );
     return;
   }
-  $("panel-projects").innerHTML = `<table>
-    <thead><tr><th>Datum</th><th>Kunde</th><th>Projekt</th><th>Firmen</th><th>Wert</th><th>Tags</th></tr></thead>
+  $("panel-posts").innerHTML = rows
+    .map((p) => {
+      const title = p.url
+        ? `<a href="${p.url}" target="_blank" rel="noreferrer">${p.author || "Post"}</a>`
+        : p.author;
+      return `<article class="post">
+        <header><strong>${title}</strong> · ${LABELS[p.company] || p.company} · ${(p.posted_at || "").slice(0, 10)}</header>
+        <p>${(p.text || "").slice(0, 420)}</p>
+        <div>${chips(p.customers)} ${chips(p.projects)} ${chips(p.tags.filter((t) => t === "ai" || t === "data_platform" || t === "in_scope"))}</div>
+      </article>`;
+    })
+    .join("");
+}
+
+function renderPeople(rows) {
+  if (!rows.length) {
+    $("panel-people").innerHTML = empty("Keine Personen im Fokus.");
+    return;
+  }
+  $("panel-people").innerHTML = `<table>
+    <thead><tr><th>Name</th><th>Firma</th><th>Headline</th><th>Ort</th></tr></thead>
     <tbody>${rows
-      .map((n) => {
-        const firms = (n.companies || []).map((id) => LABELS[id] || id).join(", ");
-        const title = n.source_url
-          ? `<a href="${n.source_url}" target="_blank" rel="noreferrer">${n.title || n.id}</a>`
-          : n.title || n.id;
-        return `<tr>
-          <td>${(n.published_at || "").slice(0, 10)}</td>
-          <td>${n.buyer_name || "—"}</td>
-          <td>${title}</td>
-          <td>${firms}</td>
-          <td>${fmtEur(n.value_eur)}</td>
-          <td>${chips(n.tags)}</td>
-        </tr>`;
+      .map((p) => {
+        const name = p.profile_url
+          ? `<a href="${p.profile_url}" target="_blank" rel="noreferrer">${p.name}</a>`
+          : p.name;
+        return `<tr><td>${name}</td><td>${LABELS[p.company] || p.company}</td><td>${p.headline}</td><td>${p.location}</td></tr>`;
       })
       .join("")}</tbody></table>`;
 }
 
 function renderCustomers(rows) {
   if (!rows.length) {
-    $("panel-customers").innerHTML = '<p class="empty">Keine Kunden in der lokalen Datenbank.</p>';
+    $("panel-customers").innerHTML = empty("Noch keine Kunden aus Posts extrahiert.");
     return;
   }
   $("panel-customers").innerHTML = `<table>
-    <thead><tr><th>Kunde</th><th>Projekte</th><th>Wettbewerber</th><th>Wert (genannt)</th></tr></thead>
+    <thead><tr><th>Kunde</th><th>Erwähnungen</th><th>Firmen</th><th>Personen</th><th>Projekte</th></tr></thead>
     <tbody>${rows
       .map(
         (c) => `<tr>
-        <td>${c.name}</td>
-        <td>${c.projects}</td>
+        <td>${c.name}</td><td>${c.mentions}</td>
         <td>${(c.companies || []).map((id) => LABELS[id] || id).join(", ")}</td>
-        <td>${fmtEur(c.value_eur)}</td>
+        <td>${(c.people || []).join(", ")}</td>
+        <td>${(c.projects || []).join(", ")}</td>
       </tr>`
       )
       .join("")}</tbody></table>`;
 }
 
-function renderPeople(rows) {
+function renderProjects(rows) {
   if (!rows.length) {
-    $("panel-people").innerHTML = `<p class="empty">
-      Noch keine Personen. Sales-Navigator- oder Recruiter-CSV importieren
-      (Spalten wie First Name, Last Name, Company, Title). LinkedIn nicht scrapen.
-    </p>`;
+    $("panel-projects").innerHTML = empty("Noch keine Projektnamen in den Posts erkannt.");
     return;
   }
-  $("panel-people").innerHTML = `<table>
-    <thead><tr><th>Name</th><th>Firma</th><th>Rolle</th><th>Kunde</th><th>Projekt</th><th>Quelle</th></tr></thead>
+  $("panel-projects").innerHTML = `<table>
+    <thead><tr><th>Projekt</th><th>Erwähnungen</th><th>Kunden</th><th>Firmen</th><th>Personen</th></tr></thead>
     <tbody>${rows
       .map(
         (p) => `<tr>
-        <td>${p.name}</td><td>${p.company}</td><td>${p.role}</td>
-        <td>${p.customer}</td><td>${p.project}</td><td>${p.source}</td>
+        <td>${p.name}</td><td>${p.mentions}</td>
+        <td>${(p.customers || []).join(", ")}</td>
+        <td>${(p.companies || []).map((id) => LABELS[id] || id).join(", ")}</td>
+        <td>${(p.people || []).join(", ")}</td>
       </tr>`
       )
       .join("")}</tbody></table>`;
 }
 
+function renderCosts(data) {
+  const a = data.assumptions;
+  $("panel-costs").innerHTML = `
+    <article class="prose">
+      <h2>Günstigster Weg zu genau diesen Posts</h2>
+      <p>Annahme: ${a.companies} Firmen, ${a.people} Köpfe in Data/AI Public Sector,
+      ${a.posts_per_person} Posts/Person, alternativ ${a.post_search_hits} Treffer per Post-Suche.
+      ${a.note}.</p>
+    </article>
+    <table>
+      <thead><tr><th>Weg</th><th>Volumen</th><th>USD</th><th>EUR ca.</th><th>Wofür</th></tr></thead>
+      <tbody>${data.providers
+        .map(
+          (p) => `<tr>
+          <td>${p.label}</td><td>${p.volume}</td>
+          <td>${p.usd}</td><td>${p.eur}</td><td>${p.best_for}</td>
+        </tr>`
+        )
+        .join("")}</tbody>
+    </table>
+    <article class="prose">
+      <p><strong>Empfehlung:</strong> ${data.cheapest.label} (~${data.cheapest.eur} € für einen Sweep).
+      ${data.not_offered.diy_linkedin_login} ${data.not_offered.official_api}</p>
+    </article>`;
+}
+
 async function refresh() {
-  const qs = companyQuery();
-  const [stats, projects, customers, people] = await Promise.all([
+  const query = qs();
+  const [stats, posts, people, customers, projects, costs] = await Promise.all([
     api("/api/stats"),
-    api(`/api/projects${qs}`),
-    api(`/api/customers${companySelect.value ? `?company=${companySelect.value}` : ""}`),
+    api(`/api/posts${query}`),
     api(`/api/people${companySelect.value ? `?company=${companySelect.value}` : ""}`),
+    api(`/api/customers${companySelect.value ? `?company=${companySelect.value}` : ""}`),
+    api(`/api/projects${companySelect.value ? `?company=${companySelect.value}` : ""}`),
+    api("/api/costs"),
   ]);
   renderKpis(stats);
   renderBars(stats);
-  renderProjects(projects);
-  renderCustomers(customers);
+  renderPosts(posts);
   renderPeople(people);
+  renderCustomers(customers);
+  renderProjects(projects);
+  renderCosts(costs);
 }
 
 async function run(label, fn) {
@@ -172,7 +195,7 @@ document.querySelectorAll(".tab").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
-    ["projects", "customers", "people", "sources"].forEach((id) => {
+    ["posts", "people", "customers", "projects", "costs"].forEach((id) => {
       $(`panel-${id}`).hidden = btn.dataset.tab !== id;
     });
   });
@@ -181,23 +204,13 @@ document.querySelectorAll(".tab").forEach((btn) => {
 $("btn-demo").addEventListener("click", () =>
   run("Demo", () => api("/api/sync/demo", { method: "POST" }))
 );
-$("btn-ted").addEventListener("click", () =>
-  run("TED", () => api("/api/sync/ted?limit=25", { method: "POST" }))
+$("btn-apify").addEventListener("click", () =>
+  run("Apify", () => api("/api/sync/apify?max_posts=40", { method: "POST" }))
 );
-$("btn-vergabe").addEventListener("click", () =>
-  run("Vergabe", () => api("/api/sync/vergabe?days=1", { method: "POST" }))
+$("btn-serper").addEventListener("click", () =>
+  run("Serper", () => api("/api/sync/serper", { method: "POST" }))
 );
-
-$("people-file").addEventListener("change", async (ev) => {
-  const file = ev.target.files?.[0];
-  if (!file) return;
-  const body = new FormData();
-  body.append("file", file);
-  await run("Import", () => api("/api/import/people", { method: "POST", body }));
-  ev.target.value = "";
-});
-
-[companySelect, focusSelect].forEach((el) => el.addEventListener("change", refresh));
+companySelect.addEventListener("change", refresh);
 searchInput.addEventListener("keydown", (ev) => {
   if (ev.key === "Enter") refresh();
 });

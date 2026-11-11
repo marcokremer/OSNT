@@ -8,7 +8,8 @@ class Company:
     id: str
     label: str
     aliases: tuple[str, ...]
-    ted_winner_query: str
+    linkedin_company: str
+    search_names: tuple[str, ...]
 
 
 COMPANIES: tuple[Company, ...] = (
@@ -16,49 +17,57 @@ COMPANIES: tuple[Company, ...] = (
         "accenture",
         "Accenture",
         ("accenture",),
-        'winner-name="Accenture"',
+        "https://www.linkedin.com/company/accenture",
+        ("Accenture", "Accenture GmbH"),
     ),
     Company(
         "deloitte",
         "Deloitte",
         ("deloitte",),
-        'winner-name="Deloitte"',
+        "https://www.linkedin.com/company/deloitte",
+        ("Deloitte", "Deloitte Consulting"),
     ),
     Company(
         "capgemini",
         "Capgemini",
         ("capgemini",),
-        'winner-name="Capgemini"',
+        "https://www.linkedin.com/company/capgemini",
+        ("Capgemini", "Capgemini Deutschland"),
     ),
     Company(
         "bearingpoint",
         "BearingPoint",
         ("bearingpoint", "bearing point"),
-        'winner-name="BearingPoint"',
+        "https://www.linkedin.com/company/bearingpoint",
+        ("BearingPoint",),
     ),
     Company(
         "t-systems",
         "T-Systems",
         ("t-systems", "t systems"),
-        'winner-name="T-Systems"',
+        "https://www.linkedin.com/company/t-systems",
+        ("T-Systems",),
     ),
     Company(
         "bechtle",
         "Bechtle",
         ("bechtle",),
-        'winner-name="Bechtle"',
+        "https://www.linkedin.com/company/bechtle-ag",
+        ("Bechtle",),
     ),
     Company(
         "pwc",
         "PwC",
         ("pwc", "pricewaterhousecoopers", "pricewaterhouse coopers"),
-        '(winner-name="PricewaterhouseCoopers" OR winner-name="PwC")',
+        "https://www.linkedin.com/company/pwc",
+        ("PwC", "PricewaterhouseCoopers"),
     ),
     Company(
         "init",
         "]init[",
         ("]init[", "init ag für digitale", "init ag fuer digitale"),
-        'winner-name="]init["',
+        "https://www.linkedin.com/company/init",
+        ("]init[", "init AG"),
     ),
 )
 
@@ -66,7 +75,6 @@ COMPANY_BY_ID = {c.id: c for c in COMPANIES}
 
 
 def match_companies(text: str) -> list[str]:
-    """Return company ids mentioned in free text (winner names, descriptions)."""
     blob = (text or "").lower()
     if not blob:
         return []

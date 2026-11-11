@@ -1,34 +1,30 @@
 from __future__ import annotations
 
-from typing import Any
-
 from pydantic import BaseModel, Field
 
 
-class Notice(BaseModel):
-    id: str
-    source: str
-    source_url: str = ""
-    published_at: str = ""
-    title: str = ""
-    description: str = ""
-    buyer_name: str = ""
-    winners: list[str] = Field(default_factory=list)
-    companies: list[str] = Field(default_factory=list)
-    cpv: list[str] = Field(default_factory=list)
-    value_eur: float | None = None
-    tags: list[str] = Field(default_factory=list)
-    notice_type: str = ""
-    extra: dict[str, Any] = Field(default_factory=dict)
-
-
 class Person(BaseModel):
-    id: int | None = None
+    id: str
     name: str
-    company: str = ""
-    role: str = ""
-    customer: str = ""
-    project: str = ""
-    source: str = "import"
-    source_url: str = ""
-    notes: str = ""
+    company: str
+    headline: str = ""
+    location: str = ""
+    profile_url: str = ""
+    about: str = ""
+    in_scope: bool = False
+    source: str = "linkedin"
+
+
+class Post(BaseModel):
+    id: str
+    person_id: str
+    company: str
+    author: str = ""
+    url: str = ""
+    text: str = ""
+    posted_at: str = ""
+    tags: list[str] = Field(default_factory=list)
+    customers: list[str] = Field(default_factory=list)
+    projects: list[str] = Field(default_factory=list)
+    in_scope: bool = False
+    source: str = "linkedin"

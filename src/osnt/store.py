@@ -7,37 +7,34 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
-from osnt.models import Notice, Person
+from osnt.models import Person, Post
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS notices (
-  id TEXT PRIMARY KEY,
-  source TEXT NOT NULL,
-  source_url TEXT,
-  published_at TEXT,
-  title TEXT,
-  description TEXT,
-  buyer_name TEXT,
-  winners_json TEXT,
-  companies_json TEXT,
-  cpv_json TEXT,
-  value_eur REAL,
-  tags_json TEXT,
-  notice_type TEXT,
-  extra_json TEXT
-);
-
 CREATE TABLE IF NOT EXISTS people (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   company TEXT,
-  role TEXT,
-  customer TEXT,
-  project TEXT,
-  source TEXT,
-  source_url TEXT,
-  notes TEXT,
-  UNIQUE(name, company, role, customer)
+  headline TEXT,
+  location TEXT,
+  profile_url TEXT,
+  about TEXT,
+  in_scope INTEGER,
+  source TEXT
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id TEXT PRIMARY KEY,
+  person_id TEXT,
+  company TEXT,
+  author TEXT,
+  url TEXT,
+  text TEXT,
+  posted_at TEXT,
+  tags_json TEXT,
+  customers_json TEXT,
+  projects_json TEXT,
+  in_scope INTEGER,
+  source TEXT
 );
 
 CREATE TABLE IF NOT EXISTS ingest_runs (
@@ -72,196 +69,218 @@ class Store:
         finally:
             conn.close()
 
-    def upsert_notice(self, notice: Notice) -> None:
+    def upsert_person(self, person: Person) -> None:
         with self.connect() as conn:
             conn.execute(
                 """
-                INSERT INTO notices (
-                  id, source, source_url, published_at, title, description,
-                  buyer_name, winners_json, companies_json, cpv_json, value_eur,
-                  tags_json, notice_type, extra_json
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO people (id, name, company, headline, location, profile_url, about, in_scope, source)
+                VALUES (?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(id) DO UPDATE SET
-                  source=excluded.source,
-                  source_url=excluded.source_url,
-                  published_at=excluded.published_at,
-                  title=excluded.title,
-                  description=excluded.description,
-                  buyer_name=excluded.buyer_name,
-                  winners_json=excluded.winners_json,
-                  companies_json=excluded.companies_json,
-                  cpv_json=excluded.cpv_json,
-                  value_eur=excluded.value_eur,
-                  tags_json=excluded.tags_json,
-                  notice_type=excluded.notice_type,
-                  extra_json=excluded.extra_json
+                  name=excluded.name,
+                  company=excluded.company,
+                  headline=excluded.headline,
+                  location=excluded.location,
+                  profile_url=excluded.profile_url,
+                  about=excluded.about,
+                  in_scope=excluded.in_scope,
+                  source=excluded.source
                 """,
                 (
-                    notice.id,
-                    notice.source,
-                    notice.source_url,
-                    notice.published_at,
-                    notice.title,
-                    notice.description,
-                    notice.buyer_name,
-                    json.dumps(notice.winners, ensure_ascii=False),
-                    json.dumps(notice.companies, ensure_ascii=False),
-                    json.dumps(notice.cpv, ensure_ascii=False),
-                    notice.value_eur,
-                    json.dumps(notice.tags, ensure_ascii=False),
-                    notice.notice_type,
-                    json.dumps(notice.extra, ensure_ascii=False),
+                    person.id,
+                    person.name,
+                    person.company,
+                    person.headline,
+                    person.location,
+                    person.profile_url,
+                    person.about,
+                    int(person.in_scope),
+                    person.source,
                 ),
             )
 
-    def _row_to_notice(self, row: sqlite3.Row) -> Notice:
-        return Notice(
+    def upsert_post(self, post: Post) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO posts (
+                  id, person_id, company, author, url, text, posted_at,
+                  tags_json, customers_json, projects_json, in_scope, source
+                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(id) DO UPDATE SET
+                  person_id=excluded.person_id,
+                  company=excluded.company,
+                  author=excluded.author,
+                  url=excluded.url,
+                  text=excluded.text,
+                  posted_at=excluded.posted_at,
+                  tags_json=excluded.tags_json,
+                  customers_json=excluded.customers_json,
+                  projects_json=excluded.projects_json,
+                  in_scope=excluded.in_scope,
+                  source=excluded.source
+                """,
+                (
+                    post.id,
+                    post.person_id,
+                    post.company,
+                    post.author,
+                    post.url,
+                    post.text,
+                    post.posted_at,
+                    json.dumps(post.tags, ensure_ascii=False),
+                    json.dumps(post.customers, ensure_ascii=False),
+                    json.dumps(post.projects, ensure_ascii=False),
+                    int(post.in_scope),
+                    post.source,
+                ),
+            )
+
+    def _person(self, row: sqlite3.Row) -> Person:
+        return Person(
             id=row["id"],
-            source=row["source"],
-            source_url=row["source_url"] or "",
-            published_at=row["published_at"] or "",
-            title=row["title"] or "",
-            description=row["description"] or "",
-            buyer_name=row["buyer_name"] or "",
-            winners=json.loads(row["winners_json"] or "[]"),
-            companies=json.loads(row["companies_json"] or "[]"),
-            cpv=json.loads(row["cpv_json"] or "[]"),
-            value_eur=row["value_eur"],
-            tags=json.loads(row["tags_json"] or "[]"),
-            notice_type=row["notice_type"] or "",
-            extra=json.loads(row["extra_json"] or "{}"),
+            name=row["name"],
+            company=row["company"] or "",
+            headline=row["headline"] or "",
+            location=row["location"] or "",
+            profile_url=row["profile_url"] or "",
+            about=row["about"] or "",
+            in_scope=bool(row["in_scope"]),
+            source=row["source"] or "",
         )
 
-    def list_notices(
-        self,
-        company: str | None = None,
-        tag: str | None = None,
-        q: str | None = None,
-        focus_only: bool = False,
-        limit: int = 200,
-    ) -> list[Notice]:
-        sql = "SELECT * FROM notices WHERE 1=1"
+    def _post(self, row: sqlite3.Row) -> Post:
+        return Post(
+            id=row["id"],
+            person_id=row["person_id"] or "",
+            company=row["company"] or "",
+            author=row["author"] or "",
+            url=row["url"] or "",
+            text=row["text"] or "",
+            posted_at=row["posted_at"] or "",
+            tags=json.loads(row["tags_json"] or "[]"),
+            customers=json.loads(row["customers_json"] or "[]"),
+            projects=json.loads(row["projects_json"] or "[]"),
+            in_scope=bool(row["in_scope"]),
+            source=row["source"] or "",
+        )
+
+    def list_people(self, company: str | None = None, in_scope: bool | None = True) -> list[Person]:
+        sql = "SELECT * FROM people WHERE 1=1"
         params: list[object] = []
         if company:
-            sql += " AND companies_json LIKE ?"
-            params.append(f'%"{company}"%')
-        if tag:
-            sql += " AND tags_json LIKE ?"
-            params.append(f'%"{tag}"%')
-        if focus_only:
-            sql += " AND (tags_json LIKE '%\"ai\"%' OR tags_json LIKE '%\"data_platform\"%')"
-        if q:
-            sql += " AND (title LIKE ? OR description LIKE ? OR buyer_name LIKE ?)"
-            like = f"%{q}%"
-            params.extend([like, like, like])
-        sql += " ORDER BY published_at DESC LIMIT ?"
-        params.append(limit)
-        with self.connect() as conn:
-            rows = conn.execute(sql, params).fetchall()
-        return [self._row_to_notice(r) for r in rows]
-
-    def stats(self) -> dict[str, object]:
-        with self.connect() as conn:
-            total = conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0]
-            people = conn.execute("SELECT COUNT(*) FROM people").fetchone()[0]
-            customers = conn.execute(
-                "SELECT COUNT(DISTINCT buyer_name) FROM notices WHERE buyer_name != ''"
-            ).fetchone()[0]
-            by_company = conn.execute(
-                "SELECT companies_json FROM notices"
-            ).fetchall()
-            by_tag = conn.execute("SELECT tags_json FROM notices").fetchall()
-        company_counts: dict[str, int] = {}
-        for (payload,) in by_company:
-            for cid in json.loads(payload or "[]"):
-                company_counts[cid] = company_counts.get(cid, 0) + 1
-        tag_counts: dict[str, int] = {}
-        for (payload,) in by_tag:
-            for tag in json.loads(payload or "[]"):
-                tag_counts[tag] = tag_counts.get(tag, 0) + 1
-        return {
-            "notices": total,
-            "customers": customers,
-            "people": people,
-            "by_company": company_counts,
-            "by_tag": tag_counts,
-        }
-
-    def customers(self, company: str | None = None) -> list[dict[str, object]]:
-        notices = self.list_notices(company=company, limit=2000)
-        buckets: dict[str, dict[str, object]] = {}
-        for notice in notices:
-            name = notice.buyer_name or "Unbekannt"
-            bucket = buckets.setdefault(
-                name,
-                {"name": name, "projects": 0, "companies": set(), "value_eur": 0.0},
-            )
-            bucket["projects"] = int(bucket["projects"]) + 1
-            companies = bucket["companies"]
-            assert isinstance(companies, set)
-            companies.update(notice.companies)
-            if notice.value_eur:
-                bucket["value_eur"] = float(bucket["value_eur"]) + notice.value_eur
-        rows = []
-        for bucket in buckets.values():
-            companies = bucket["companies"]
-            assert isinstance(companies, set)
-            rows.append(
-                {
-                    "name": bucket["name"],
-                    "projects": bucket["projects"],
-                    "companies": sorted(companies),
-                    "value_eur": bucket["value_eur"],
-                }
-            )
-        rows.sort(key=lambda r: int(r["projects"]), reverse=True)
-        return rows
-
-    def insert_person(self, person: Person) -> None:
-        with self.connect() as conn:
-            conn.execute(
-                """
-                INSERT OR IGNORE INTO people
-                  (name, company, role, customer, project, source, source_url, notes)
-                VALUES (?,?,?,?,?,?,?,?)
-                """,
-                (
-                    person.name.strip(),
-                    person.company.strip(),
-                    person.role.strip(),
-                    person.customer.strip(),
-                    person.project.strip(),
-                    person.source,
-                    person.source_url,
-                    person.notes,
-                ),
-            )
-
-    def list_people(self, company: str | None = None) -> list[Person]:
-        sql = "SELECT * FROM people"
-        params: list[object] = []
-        if company:
-            sql += " WHERE lower(company) LIKE ?"
-            params.append(f"%{company.lower()}%")
+            sql += " AND company = ?"
+            params.append(company)
+        if in_scope is True:
+            sql += " AND in_scope = 1"
         sql += " ORDER BY company, name"
         with self.connect() as conn:
             rows = conn.execute(sql, params).fetchall()
-        return [
-            Person(
-                id=row["id"],
-                name=row["name"],
-                company=row["company"] or "",
-                role=row["role"] or "",
-                customer=row["customer"] or "",
-                project=row["project"] or "",
-                source=row["source"] or "",
-                source_url=row["source_url"] or "",
-                notes=row["notes"] or "",
-            )
-            for row in rows
-        ]
+        return [self._person(r) for r in rows]
 
-    def record_run(self, source: str, status: str, stats: dict[str, object]) -> None:
+    def list_posts(
+        self,
+        company: str | None = None,
+        q: str | None = None,
+        in_scope: bool | None = True,
+        limit: int = 300,
+    ) -> list[Post]:
+        sql = "SELECT * FROM posts WHERE 1=1"
+        params: list[object] = []
+        if company:
+            sql += " AND company = ?"
+            params.append(company)
+        if in_scope is True:
+            sql += " AND in_scope = 1"
+        if q:
+            sql += " AND (text LIKE ? OR author LIKE ? OR customers_json LIKE ?)"
+            like = f"%{q}%"
+            params.extend([like, like, like])
+        sql += " ORDER BY posted_at DESC LIMIT ?"
+        params.append(limit)
+        with self.connect() as conn:
+            rows = conn.execute(sql, params).fetchall()
+        return [self._post(r) for r in rows]
+
+    def customers(self, company: str | None = None) -> list[dict]:
+        posts = self.list_posts(company=company, in_scope=True, limit=2000)
+        buckets: dict[str, dict] = {}
+        for post in posts:
+            for name in post.customers:
+                bucket = buckets.setdefault(
+                    name,
+                    {"name": name, "mentions": 0, "people": set(), "companies": set(), "projects": set()},
+                )
+                bucket["mentions"] += 1
+                bucket["people"].add(post.author or post.person_id)
+                bucket["companies"].add(post.company)
+                bucket["projects"].update(post.projects)
+        rows = []
+        for bucket in buckets.values():
+            rows.append(
+                {
+                    "name": bucket["name"],
+                    "mentions": bucket["mentions"],
+                    "people": sorted(bucket["people"]),
+                    "companies": sorted(bucket["companies"]),
+                    "projects": sorted(bucket["projects"]),
+                }
+            )
+        rows.sort(key=lambda r: r["mentions"], reverse=True)
+        return rows
+
+    def projects(self, company: str | None = None) -> list[dict]:
+        posts = self.list_posts(company=company, in_scope=True, limit=2000)
+        buckets: dict[str, dict] = {}
+        for post in posts:
+            for name in post.projects or ["(ohne Projektname, nur Kundensignal)"]:
+                if not post.projects and not post.customers:
+                    continue
+                if not post.projects:
+                    name = f"Erwähnung: {', '.join(post.customers)}"
+                bucket = buckets.setdefault(
+                    name,
+                    {"name": name, "mentions": 0, "customers": set(), "companies": set(), "people": set()},
+                )
+                bucket["mentions"] += 1
+                bucket["customers"].update(post.customers)
+                bucket["companies"].add(post.company)
+                bucket["people"].add(post.author or post.person_id)
+        rows = []
+        for bucket in buckets.values():
+            rows.append(
+                {
+                    "name": bucket["name"],
+                    "mentions": bucket["mentions"],
+                    "customers": sorted(bucket["customers"]),
+                    "companies": sorted(bucket["companies"]),
+                    "people": sorted(bucket["people"]),
+                }
+            )
+        rows.sort(key=lambda r: r["mentions"], reverse=True)
+        return rows
+
+    def stats(self) -> dict:
+        with self.connect() as conn:
+            people = conn.execute("SELECT COUNT(*) FROM people WHERE in_scope = 1").fetchone()[0]
+            people_all = conn.execute("SELECT COUNT(*) FROM people").fetchone()[0]
+            posts = conn.execute("SELECT COUNT(*) FROM posts WHERE in_scope = 1").fetchone()[0]
+            posts_all = conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]
+            company_rows = conn.execute(
+                "SELECT company, COUNT(*) n FROM people WHERE in_scope = 1 GROUP BY company"
+            ).fetchall()
+        customers = self.customers()
+        projects = self.projects()
+        return {
+            "people": people,
+            "people_all": people_all,
+            "posts": posts,
+            "posts_all": posts_all,
+            "customers": len(customers),
+            "projects": len(projects),
+            "by_company": {row["company"]: row["n"] for row in company_rows if row["company"]},
+        }
+
+    def record_run(self, source: str, status: str, stats: dict) -> None:
         with self.connect() as conn:
             conn.execute(
                 """
@@ -271,6 +290,9 @@ class Store:
                 (source, utc_now(), utc_now(), status, json.dumps(stats, ensure_ascii=False)),
             )
 
-    def notice_count(self) -> int:
+    def counts(self) -> dict[str, int]:
         with self.connect() as conn:
-            return int(conn.execute("SELECT COUNT(*) FROM notices").fetchone()[0])
+            return {
+                "people": int(conn.execute("SELECT COUNT(*) FROM people").fetchone()[0]),
+                "posts": int(conn.execute("SELECT COUNT(*) FROM posts").fetchone()[0]),
+            }

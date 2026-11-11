@@ -9,6 +9,9 @@ AI_PATTERNS = (
     r"künstlich\w* intelligenz",
     r"kuenstlich\w* intelligenz",
     r"artificial intelligence",
+    r"\bki\b",
+    r"ki-pilot",
+    r"ki-service",
     r"\bgenai\b",
     r"generative ki",
     r"generative ai",
@@ -85,9 +88,9 @@ def is_it_cpv(cpv_codes: Iterable[str] | None) -> bool:
 
 
 def classify(text: str, cpv_codes: Iterable[str] | None = None) -> list[str]:
-    """Tag a notice. Public-sector is implied for TED/Vergabe DE awards."""
+    """Tag LinkedIn text (and optional CPV if a notice is mixed in)."""
     blob = text or ""
-    tags: list[str] = ["public_sector"]
+    tags: list[str] = []
     if is_it_cpv(cpv_codes):
         tags.append("it")
     if any(p.search(blob) for p in _AI):

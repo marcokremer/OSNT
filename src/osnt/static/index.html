@@ -3,46 +3,33 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>OSNT — Public Sector Data &amp; AI</title>
+    <title>OSNT — LinkedIn Posts Public Sector Data &amp; KI</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <header class="mast">
       <div>
-        <p class="kicker">OSNT · Marktbeobachtung öffentlicher Sektor</p>
-        <h1>Data Platforms &amp; KI bei acht Wettbewerbern</h1>
+        <p class="kicker">OSNT · LinkedIn OSINT</p>
+        <h1>Posts zu Data Platforms &amp; KI im Public Sector</h1>
       </div>
       <p class="legal">
-        Kein LinkedIn-Scraper. Daten kommen aus TED, oeffentlichevergabe.de
-        und optional aus einem Sales-Navigator-Export, den Sie selbst besitzen.
+        Acht Firmen, Personen in Data/AI, Kunden und Projekte aus deren Posts.
+        Sammlung über HarvestAPI/Bright Data/Google — kein Login bei LinkedIn.
       </p>
     </header>
 
     <section class="toolbar">
       <label>
         Firma
-        <select id="company">
-          <option value="">Alle</option>
-        </select>
-      </label>
-      <label>
-        Fokus
-        <select id="focus">
-          <option value="all">Alle IT-Vergaben</option>
-          <option value="focus">Nur KI / Datenplattform</option>
-        </select>
+        <select id="company"><option value="">Alle</option></select>
       </label>
       <label class="grow">
-        Suche
-        <input id="q" type="search" placeholder="Kunde, Titel, Schlagwort" />
+        Suche in Posts
+        <input id="q" type="search" placeholder="ITZBund, Datenplattform, Name…" />
       </label>
-      <button type="button" id="btn-demo">Demo laden</button>
-      <button type="button" id="btn-ted">TED live</button>
-      <button type="button" id="btn-vergabe">Vergabe 1 Tag</button>
-      <label class="file">
-        Personen-CSV
-        <input id="people-file" type="file" accept=".csv,text/csv" />
-      </label>
+      <button type="button" id="btn-demo">Demo-Posts laden</button>
+      <button type="button" id="btn-apify">Apify scrapen</button>
+      <button type="button" id="btn-serper">Google/Serper</button>
     </section>
     <p id="status" class="status" hidden></p>
 
@@ -50,38 +37,18 @@
     <section id="bars" class="bars"></section>
 
     <nav class="tabs" role="tablist">
-      <button type="button" class="tab active" data-tab="projects">Projekte</button>
-      <button type="button" class="tab" data-tab="customers">Kunden</button>
+      <button type="button" class="tab active" data-tab="posts">Posts</button>
       <button type="button" class="tab" data-tab="people">Personen</button>
-      <button type="button" class="tab" data-tab="sources">Quellen &amp; Kosten</button>
+      <button type="button" class="tab" data-tab="customers">Kunden</button>
+      <button type="button" class="tab" data-tab="projects">Projekte</button>
+      <button type="button" class="tab" data-tab="costs">Kosten</button>
     </nav>
 
-    <section id="panel-projects" class="panel"></section>
-    <section id="panel-customers" class="panel" hidden></section>
+    <section id="panel-posts" class="panel"></section>
     <section id="panel-people" class="panel" hidden></section>
-    <section id="panel-sources" class="panel" hidden>
-      <article class="prose">
-        <h2>Warum nicht LinkedIn scrapen</h2>
-        <p>
-          LinkedIn verbietet Scraping in den Nutzungsbedingungen. Die offizielle
-          API liefert keine Suche über Posts fremder Mitarbeiter. Proxycurl
-          wurde 2025 nach einer Klage von LinkedIn eingestellt. Ein eigener
-          Scraper (Cookies, Residential Proxies, Fake-Accounts) ist die teuerste
-          Variante: Account-Sperren, Abmahnrisiko, DSGVO-Aufsicht.
-        </p>
-        <h2>Kostengünstigste Reihenfolge</h2>
-        <ol>
-          <li><strong>0 €</strong> — TED + oeffentlichevergabe.de: Kunden, Projekte, CPV, Auftragswerte.</li>
-          <li><strong>~1.089 €/Jahr</strong> — LinkedIn Sales Navigator Core: legale Kopfzahl je Firma/Skill, CSV-Export hier importieren.</li>
-          <li><strong>0–10 €/Monat</strong> — Google/Serper: öffentlich indexierte Presse und <em>manche</em> LinkedIn-Posts, ohne Login bei LinkedIn.</li>
-          <li>Kommerzielle Post-APIs (Bright Data u. a.) nur nach Rechtsprüfung — Listenpreis ca. 1,30–1,50 USD / 1.000 Records.</li>
-        </ol>
-        <p>
-          Für den Public Sector beantworten Vergabedaten die Fragen „welche Kunden,
-          welche Projekte“ zuverlässiger als Social-Media-Posts.
-        </p>
-      </article>
-    </section>
+    <section id="panel-customers" class="panel" hidden></section>
+    <section id="panel-projects" class="panel" hidden></section>
+    <section id="panel-costs" class="panel" hidden></section>
 
     <script src="/static/app.js"></script>
   </body>
